@@ -1,37 +1,22 @@
 import { useRef } from "react";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
+
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-
 import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import Copyright from "./Copyright";
-
-import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import emailjs from "@emailjs/browser";
+import FormModal from "../FormModal/FormModal";
 
-
-
-
-
-const theme = createTheme();
+import { Field, Form, Formik } from "formik";
+import { basicSchema } from "../schema";
 
 export default function SignUp() {
   const formRef = useRef();
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-
-    const name = data.get("name");
-    const email = data.get("email");
-    const number = data.get("number");
-    const message = data.get("message");
+  const handleSubmit = (values) => {
+    console.log(formRef.current);
 
     emailjs
       .sendForm(
@@ -40,10 +25,10 @@ export default function SignUp() {
         formRef.current,
         "vl3h46kzDVeNgrXe5",
         {
-          name: name,
-          message: message,
-          number: number,
-          email: email,
+          name: values.name,
+          message: values.message,
+          number: values.number,
+          email: values.email,
         }
       )
       .then(
@@ -56,101 +41,88 @@ export default function SignUp() {
       );
   };
 
-  return (
-    <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 3,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Typography component="h1" variant="h5" sx={{ textAlign: "center" }}>
-            Want to win a free trip?
-            <br />
-            Fill the form below!
-          </Typography>
-          <Box
-            component="form"
-            noValidate
-            ref={formRef}
-            onSubmit={handleSubmit}
-            sx={{ mt: 3 }}
-          >
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  autoComplete="given-name"
-                  name="name"
-                  required
-                  fullWidth
-                  id="name"
-                  label="Name"
-                  autoFocus
-                  variant="standard"
-                />
-              </Grid>
+  const initialValues = {
+    name: "",
+    email: "",
+    number: "",
+    message: "",
+  };
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
+  return (
+    <Formik
+      initialValues={initialValues}
+      validationSchema={basicSchema}
+      onSubmit={(values, { setSubmitting, resetForm }) => {
+        setTimeout(() => {
+          handleSubmit(values);
+          setSubmitting(false);
+          resetForm();
+        }, 400);
+      }}
+    >
+      {({ errors, touched }) => (
+        <Form ref={formRef}>
+          <Container component="main" maxWidth="xs">
+            <Grid container spacing={2} sx={{ mt: 3 }}>
+              <Grid item xs={12}>
+                <Field
+                  as={TextField}
+                  name="name"
+                  label="Name"
                   variant="standard"
+                  fullWidth
+                  error={touched.name && Boolean(errors.name)}
+                  helperText={touched.name && errors.name}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="number"
-                  label="Contact number"
-                  name="number"
-                  autoComplete="number"
+                <Field
+                  as={TextField}
+                  name="email"
+                  label="Email"
                   variant="standard"
+                  fullWidth
+                  error={touched.email && Boolean(errors.email)}
+                  helperText={touched.email && errors.email}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Field
+                  as={TextField}
+                  name="number"
+                  label="Number"
+                  variant="standard"
+                  fullWidth
+                  error={touched.number && Boolean(errors.number)}
+                  helperText={touched.number && errors.number}
                 />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
+                <Field
+                  as={TextField}
                   name="message"
-                  label="Why do you want to perform Umrah?"
-                  type="text"
-                  id="message"
+                  label="Message"
+                  variant="standard"
+                  fullWidth
                   multiline
                   rows={4}
-                  variant="standard"
+                  error={touched.message && Boolean(errors.message)}
+                  helperText={touched.message && errors.message}
                 />
               </Grid>
-              
               <Grid item xs={12}>
                 <FormControlLabel
                   control={
-                    <Checkbox value="allowExtraEmails" color="primary" />
+                    <Field as={Checkbox} name="subscribe" color="primary" />
                   }
                   label="I want to receive information and updates of future trips via email."
                 />
               </Grid>
             </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2, fontWeight: 'bold' }}
-            >
-              Submit
-            </Button>
-          </Box>
-        </Box>
-        <Copyright sx={{ mt: 2 }} />
-      </Container>
-    </ThemeProvider>
+            <FormModal error={errors}/>
+          </Container>
+        </Form>
+      )}
+    </Formik>
   );
 }

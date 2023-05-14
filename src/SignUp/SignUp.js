@@ -101,7 +101,7 @@ export default function SignUp() {
                 <Field
                   as={TextField}
                   name="message"
-                  label="Message"
+                  label="Why do you want to win a free Umrah?"
                   variant="standard"
                   fullWidth
                   multiline

@@ -31,8 +31,9 @@ export default function FormModal({ errors }) {
         fullWidth
         variant="contained"
         sx={{ mt: 3, mb: 2, fontWeight: "bold" }}
+        disabled
       >
-        Submit
+        registration closed :(
       </Button>
 
       <Modal
